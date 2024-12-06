@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/models/Note.dart';
+import 'package:notes_app/screens/add_edit.dart';
 import 'package:notes_app/services/database_helper.dart';
 
 class Home extends StatefulWidget {
@@ -127,7 +128,7 @@ class _HomeState extends State<Home> {
           await Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => AddEditNoteScreen(),
+                builder: (context) => AddEdit(),
               ));
           _loadNotes();
         },
