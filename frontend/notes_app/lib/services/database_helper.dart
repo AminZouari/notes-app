@@ -48,6 +48,15 @@ class DatabaseHelper{
         return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
     }
 
+    Future<List<Note>> searchNotes(String query) async {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.rawQuery('''
+        SELECT * FROM notes
+        WHERE title LIKE ? OR content LIKE ?
+        ''', ['%$query%', '%$query%']);
+      return List.generate(maps.length, (i) => Note.fromMap(maps[i]));
+    }
+
     Future<int> updateNote(Note note) async {
       final db = await database;
       return await db.update(

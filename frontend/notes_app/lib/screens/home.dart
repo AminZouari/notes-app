@@ -14,6 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   List<Note> _notes = [];
+  bool _isSearching = false;
   final List<Color> _noteColors = [
     Colors.amber,
     Color(0xFF50C878),
@@ -23,6 +24,21 @@ class _HomeState extends State<Home> {
     Colors.purpleAccent,
     Colors.pinkAccent,
   ];
+  //focus
+  final FocusNode _focusNode = FocusNode();
+
+
+
+  void _toggleSearch() {
+    setState(() {
+      _isSearching = !_isSearching;
+      if (_isSearching) {
+        _focusNode.requestFocus();
+      } else {
+        _focusNode.unfocus();
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -34,6 +50,17 @@ class _HomeState extends State<Home> {
   Future<void> _loadNotes() async {
     final notes = await _databaseHelper.getNotes();
     setState(() {
+      _notes = notes;
+    });
+  }
+
+  Future<void> _searchNotes(String value) async {
+    final notes = await _databaseHelper.searchNotes(value);
+    if(value.isEmpty)
+     _loadNotes();
+    else
+    setState(() {
+
       _notes = notes;
     });
   }
@@ -54,9 +81,31 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
-        title: Text(
+        title: !_isSearching
+        ?
+        Text(
           "My Notes",
+        )
+        : TextField(
+
+          focusNode: _focusNode,
+          decoration: InputDecoration(
+            hintText: "Search By Title or Content...",
+            border: InputBorder.none,
+          ),
+          onChanged: (value) {
+            _searchNotes(value);
+          },
         ),
+        actions: [
+          IconButton(
+            iconSize: 32,
+            onPressed: (){
+              _toggleSearch();
+              _loadNotes();
+          }, icon: Icon(_isSearching ? Icons.cancel : Icons.search),
+          )
+        ],
       ),
       body: GridView.builder(
           padding: EdgeInsets.all(16),
