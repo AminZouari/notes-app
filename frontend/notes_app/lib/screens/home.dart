@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:notes_app/models/Note.dart';
 import 'package:notes_app/screens/add_edit.dart';
+import 'package:notes_app/screens/view_note.dart';
 import 'package:notes_app/services/database_helper.dart';
 
 class Home extends StatefulWidget {
@@ -70,7 +71,11 @@ class _HomeState extends State<Home> {
 
             return GestureDetector(
               onTap: () async {
-                //  await Navigator.push(context, MaterialPageRoute(builder: (context) => ViewNoteScreen(note: note),));
+                await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ViewNote(note: note),
+                    ));
                 _loadNotes();
               },
               child: Container(
