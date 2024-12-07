@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:notes_app/screens/home.dart';
 
 
 import '../models/Note.dart';
@@ -117,8 +118,11 @@ class _AddEditState extends State<AddEdit> {
                     ),
                   InkWell(
                     onTap: (){
-                      //_saveNote();
-                      Navigator.pop(context);
+                      _saveNote();
+                      Navigator.push(context,
+                          MaterialPageRoute(
+                              builder: (context) => Home()
+                          ));
                     },
                     child: Container(
                       margin: EdgeInsets.all(20),
