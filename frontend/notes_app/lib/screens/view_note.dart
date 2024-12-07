@@ -57,6 +57,68 @@ class ViewNote extends StatelessWidget {
           SizedBox(width: 8),
         ],
       ),
+      body: SafeArea(child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(padding: EdgeInsets.fromLTRB(24, 16, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(note.title,
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white
+                  ),
+                ),
+                SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      size: 16,
+                      color: Colors.white,),
+                    SizedBox(width: 8,),
+                    Text(_formatDateTime(note.dateTime),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500
+                      ),
+                    )
+
+                  ],
+                )
+
+              ],
+            ),
+            ),
+            Expanded(child: Container(
+              width: double.infinity ,
+              padding: EdgeInsets.fromLTRB(24, 32, 24, 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(32),
+                  topRight: Radius.circular(32)
+                )
+              ),
+              child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Text(
+                  note.content,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black.withOpacity(0.8),
+                    height: 1.6,
+                    letterSpacing: 0.2
+                  ),
+                ),
+              )
+            ))
+          ],
+        )
+      )
     );
   }
 
