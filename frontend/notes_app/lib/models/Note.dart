@@ -62,7 +62,7 @@ class Note {
       content: map['content'] as String,
       color: map['color'] as String,
       dateTime: map['dateTime'] as String,
-      isPinned: map['isPinned'] == 1 as bool,
+      isPinned: (map['isPinned'] as int) == 1,
     );
   }
 }

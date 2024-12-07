@@ -3,6 +3,7 @@ import 'package:notes_app/models/Note.dart';
 import 'package:notes_app/screens/add_edit.dart';
 import 'package:notes_app/screens/view_note.dart';
 import 'package:notes_app/services/database_helper.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -42,40 +43,17 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    //_loadNotes();
-    _loadStaticNotes();
+    _loadNotes();
+
     _databaseHelper.logAllNotes();
   }
 
-  void _loadStaticNotes() {
-    Note note1 = Note(
-      title: 'Meeting Notes',
-      content: 'Discuss project milestones.',
-      color: 'blue',
-      dateTime: '2024-12-07',
-    );
-
-    Note note2 = Note(
-      title: 'Reminder',
-      content: 'Call the doctor.',
-      color: 'red',
-      dateTime: '2024-12-08',
-      isPinned: true,
-    );
-    Note note3 = Note(
-      title: 'Shopping List',
-      content: 'Buy milk, bread, eggs, and coffee.',
-      color: 'green',
-      dateTime: '2024-12-09',
-    );
-    _notes = [note1, note2, note3]
-      ..sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
-  }
 
   Future<void> _loadNotes() async {
     final notes = await _databaseHelper.getNotes();
     setState(() {
-      _notes = notes;
+      _notes =
+      notes..sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
     });
   }
 
@@ -93,9 +71,16 @@ class _HomeState extends State<Home> {
     final DateTime dt = DateTime.parse(dateTime);
     final now = DateTime.now();
     if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
-      return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(0, '0')}';
+      return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute
+          .toString().padLeft(0, '0')}';
     }
-    return '${dt.day}/${dt.month}/${dt.year}:${dt.minute.toString().padLeft(0, '0')}';
+    return '${dt.day}/${dt.month}/${dt.year}:${dt.minute.toString().padLeft(
+        0, '0')}';
+  }
+
+  void shareNote(Note note) {
+    String shareContent = 'Title: ${note.title}\n\n${note.content}';
+    Share.share(shareContent, subject: 'Check out this note: ${note.title}');
   }
 
   @override
@@ -107,18 +92,18 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.white,
         title: !_isSearching
             ? Text(
-                "My Notes",
-              )
+          "My Notes",
+        )
             : TextField(
-                focusNode: _focusNode,
-                decoration: InputDecoration(
-                  hintText: "Search By Title or Content...",
-                  border: InputBorder.none,
-                ),
-                onChanged: (value) {
-                  _searchNotes(value);
-                },
-              ),
+          focusNode: _focusNode,
+          decoration: InputDecoration(
+            hintText: "Search By Title or Content...",
+            border: InputBorder.none,
+          ),
+          onChanged: (value) {
+            _searchNotes(value);
+          },
+        ),
         actions: [
           IconButton(
             iconSize: 32,
@@ -196,16 +181,18 @@ class _HomeState extends State<Home> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    IconButton(onPressed: () {shareNote(note);}, icon: Icon(Icons.share)),
                     IconButton(
                       icon: Icon(
-                        note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        note.isPinned ? Icons.push_pin : Icons
+                            .push_pin_outlined,
                         color: Colors.white,
                       ),
                       onPressed: () async {
                         note.isPinned = !note.isPinned;
-                        _loadStaticNotes();
-                        // await _databaseHelper.updateNote(note);
-                        // _loadNotes();
+
+                        await _databaseHelper.updateNote(note);
+                        _loadNotes();
                       },
                     ),
                   ],
