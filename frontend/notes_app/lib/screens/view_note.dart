@@ -5,7 +5,7 @@ import '../models/Note.dart';
 
 class ViewNote extends StatelessWidget {
   final Note note;
-  const ViewNote({required this.note});
+  ViewNote({required this.note});
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
   String _formatDateTime(String dateTime) {
