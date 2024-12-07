@@ -15,11 +15,14 @@ class DatabaseHelper{
     }
 
     Future<Database> _initDatabase() async{
-        String path = join(await getDatabasesPath(), 'notes_db.db');
+        String path = join(await getDatabasesPath(), 'xnotes_db.db');
         return await openDatabase(
           path,
           version: 1,
           onCreate: _onCreate,
+
+
+
         );
       //}
     }
@@ -31,11 +34,18 @@ class DatabaseHelper{
         title TEXT,
         content TEXT,
         color TEXT,
-        dateTime TEXT
+        dateTime TEXT,
+        isPinned INTEGER DEFAULT 0
         )
         ''');
     }
 
+    Future<void> _onUpgrade(Database db, oldVersion, int version) async {
+      if (oldVersion < 2)
+      await db.execute('''
+        DROP TABLE IF EXISTS notes
+        ''');
+    }
     Future<int> insertNote(Note note) async {
       final db = await database;
       return await db.insert('notes', note.toMap());

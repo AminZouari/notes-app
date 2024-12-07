@@ -3,6 +3,7 @@ import 'package:notes_app/models/Note.dart';
 import 'package:notes_app/screens/add_edit.dart';
 import 'package:notes_app/screens/view_note.dart';
 import 'package:notes_app/services/database_helper.dart';
+import 'package:share_plus/share_plus.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -39,6 +40,10 @@ class _HomeState extends State<Home> {
       }
     });
   }
+  void shareNote(Note note) {
+    String shareContent = 'Title: ${note.title}\n\n${note.content}';
+    Share.share(shareContent, subject: 'Check out this note: ${note.title}');
+  }
 
   @override
   void initState() {
@@ -50,7 +55,7 @@ class _HomeState extends State<Home> {
   Future<void> _loadNotes() async {
     final notes = await _databaseHelper.getNotes();
     setState(() {
-      _notes = notes;
+      _notes = notes..sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
     });
   }
 
@@ -166,13 +171,51 @@ class _HomeState extends State<Home> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Spacer(),
-                    Text(
-                      _formatDateTime(note.dateTime),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Container(
+
+                    height: 32,
+
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children:[
+                          Text(
+                            _formatDateTime(note.dateTime),
+
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+
+                            ),
+                          ),
+
+                          IconButton(
+                            icon: Icon(
+                              note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            onPressed: () async {
+                              note.isPinned = !note.isPinned;
+                              await _databaseHelper.updateNote(note);
+                              _loadNotes();
+                            },
+                          ),
+                          // IconButton(
+                          //     onPressed: () {
+                          //       shareNote(note);
+                          //     },
+                          //     icon: Icon(
+                          //       Icons.share,
+                          //       color: Colors.white,
+                          //       size: 16,
+                          //     )
+                          // ),
+                        ],
+
+
+                      )
                     )
                   ],
                 ),
