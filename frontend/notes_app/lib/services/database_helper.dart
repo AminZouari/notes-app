@@ -22,11 +22,6 @@ class DatabaseHelper{
         path,
         version: 1,
         onCreate: _onCreate,
-        onUpgrade: (db, oldVersion, newVersion) async {
-          if (oldVersion < 2) {
-            await db.execute('ALTER TABLE notes ADD COLUMN isPinned INTEGER DEFAULT 0');
-          }
-        },
       );
     }
 
