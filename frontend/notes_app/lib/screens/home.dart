@@ -12,7 +12,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final DatabaseHelper _dataBaseHelper = DatabaseHelper();
+  final DatabaseHelper _databaseHelper = DatabaseHelper();
   List<Note> _notes = [];
   final List<Color> _noteColors = [
     Colors.amber,
@@ -28,10 +28,11 @@ class _HomeState extends State<Home> {
   void initState() {
     super.initState();
     _loadNotes();
+    _databaseHelper.logAllNotes();
   }
 
   Future<void> _loadNotes() async {
-    final notes = await _dataBaseHelper.getNotes();
+    final notes = await _databaseHelper.getNotes();
     setState(() {
       _notes = notes;
     });
@@ -77,6 +78,7 @@ class _HomeState extends State<Home> {
                       builder: (context) => ViewNote(note: note),
                     ));
                 _loadNotes();
+
               },
               child: Container(
                 decoration: BoxDecoration(
