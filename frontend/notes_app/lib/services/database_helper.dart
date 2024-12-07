@@ -33,7 +33,7 @@ class DatabaseHelper{
         content TEXT,
         color TEXT,
         dateTime TEXT
-        
+        )
         ''');
     }
 
@@ -65,4 +65,13 @@ class DatabaseHelper{
               whereArgs: [id],
             );
           }
+
+
+    // print all notes to console for verif usage
+    Future<void> logAllNotes() async {
+      List<Note> notes = await getNotes(); // Fetch all notes
+      for (var note in notes) {
+        print('Note ID: ${note.id}, Title: ${note.title}, Color: ${note.color}, DateTime: ${note.dateTime}');
+      }
+    }
 }
