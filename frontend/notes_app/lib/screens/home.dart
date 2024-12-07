@@ -24,10 +24,9 @@ class _HomeState extends State<Home> {
     Colors.purpleAccent,
     Colors.pinkAccent,
   ];
+
   //focus
   final FocusNode _focusNode = FocusNode();
-
-
 
   void _toggleSearch() {
     setState(() {
@@ -43,8 +42,34 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    _loadNotes();
+    //_loadNotes();
+    _loadStaticNotes();
     _databaseHelper.logAllNotes();
+  }
+
+  void _loadStaticNotes() {
+    Note note1 = Note(
+      title: 'Meeting Notes',
+      content: 'Discuss project milestones.',
+      color: 'blue',
+      dateTime: '2024-12-07',
+    );
+
+    Note note2 = Note(
+      title: 'Reminder',
+      content: 'Call the doctor.',
+      color: 'red',
+      dateTime: '2024-12-08',
+      isPinned: true,
+    );
+    Note note3 = Note(
+      title: 'Shopping List',
+      content: 'Buy milk, bread, eggs, and coffee.',
+      color: 'green',
+      dateTime: '2024-12-09',
+    );
+    _notes = [note1, note2, note3]
+      ..sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
   }
 
   Future<void> _loadNotes() async {
@@ -56,13 +81,12 @@ class _HomeState extends State<Home> {
 
   Future<void> _searchNotes(String value) async {
     final notes = await _databaseHelper.searchNotes(value);
-    if(value.isEmpty)
-     _loadNotes();
+    if (value.isEmpty)
+      _loadNotes();
     else
-    setState(() {
-
-      _notes = notes;
-    });
+      setState(() {
+        _notes = notes;
+      });
   }
 
   String _formatDateTime(String dateTime) {
@@ -82,28 +106,27 @@ class _HomeState extends State<Home> {
         elevation: 0,
         backgroundColor: Colors.white,
         title: !_isSearching
-        ?
-        Text(
-          "My Notes",
-        )
-        : TextField(
-
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            hintText: "Search By Title or Content...",
-            border: InputBorder.none,
-          ),
-          onChanged: (value) {
-            _searchNotes(value);
-          },
-        ),
+            ? Text(
+                "My Notes",
+              )
+            : TextField(
+                focusNode: _focusNode,
+                decoration: InputDecoration(
+                  hintText: "Search By Title or Content...",
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  _searchNotes(value);
+                },
+              ),
         actions: [
           IconButton(
             iconSize: 32,
-            onPressed: (){
+            onPressed: () {
               _toggleSearch();
               _loadNotes();
-          }, icon: Icon(_isSearching ? Icons.cancel : Icons.search),
+            },
+            icon: Icon(_isSearching ? Icons.cancel : Icons.search),
           )
         ],
       ),
@@ -127,7 +150,6 @@ class _HomeState extends State<Home> {
                       builder: (context) => ViewNote(note: note),
                     ));
                 _loadNotes();
-
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -173,7 +195,19 @@ class _HomeState extends State<Home> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
-                    )
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                        color: Colors.white,
+                      ),
+                      onPressed: () async {
+                        note.isPinned = !note.isPinned;
+                        _loadStaticNotes();
+                        // await _databaseHelper.updateNote(note);
+                        // _loadNotes();
+                      },
+                    ),
                   ],
                 ),
               ),
