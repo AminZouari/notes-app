@@ -1,5 +1,3 @@
-// lib/models/note.dart
-
 class Note {
   final int? id;
   final String title;
@@ -38,7 +36,7 @@ class Note {
       content: json['content'] as String,
       color: json['color'] as String,
       dateTime: json['dateTime'] as String,
-      isPinned: json['isPinned'] as bool,
+      isPinned: (json['isPinned'] as int) == 1,
     );
   }
 
@@ -62,7 +60,7 @@ class Note {
       content: map['content'] as String,
       color: map['color'] as String,
       dateTime: map['dateTime'] as String,
-      isPinned: (map['isPinned'] as int) == 1,
+      isPinned: (map['isPinned'] as int?) == 1,
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
 import '../models/Note.dart';
 
 class DatabaseHelper{
@@ -9,7 +8,6 @@ class DatabaseHelper{
 
     factory DatabaseHelper()=> _instance;
     DatabaseHelper._internal();
-
     Future<Database> get database async{
       if(_database != null) return _database!;
       _database = await _initDatabase();
@@ -17,12 +15,16 @@ class DatabaseHelper{
     }
 
     Future<Database> _initDatabase() async{
-      String path = join(await getDatabasesPath(), 'notes_db.db');
-      return await openDatabase(
-        path,
-        version: 1,
-        onCreate: _onCreate,
-      );
+        String path = join(await getDatabasesPath(), 'xnotes_db.db');
+        return await openDatabase(
+          path,
+          version: 1,
+          onCreate: _onCreate,
+
+
+
+        );
+      //}
     }
 
     Future<void> _onCreate(Database db, int version) async {
@@ -38,6 +40,12 @@ class DatabaseHelper{
         ''');
     }
 
+    Future<void> _onUpgrade(Database db, oldVersion, int version) async {
+      if (oldVersion < 2)
+      await db.execute('''
+        DROP TABLE IF EXISTS notes
+        ''');
+    }
     Future<int> insertNote(Note note) async {
       final db = await database;
       return await db.insert('notes', note.toMap());

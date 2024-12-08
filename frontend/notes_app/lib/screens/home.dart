@@ -25,9 +25,10 @@ class _HomeState extends State<Home> {
     Colors.purpleAccent,
     Colors.pinkAccent,
   ];
-
   //focus
   final FocusNode _focusNode = FocusNode();
+
+
 
   void _toggleSearch() {
     setState(() {
@@ -39,48 +40,43 @@ class _HomeState extends State<Home> {
       }
     });
   }
+  void shareNote(Note note) {
+    String shareContent = 'Title: ${note.title}\n\n${note.content}';
+    Share.share(shareContent, subject: 'Check out this note: ${note.title}');
+  }
 
   @override
   void initState() {
     super.initState();
     _loadNotes();
-
     _databaseHelper.logAllNotes();
   }
-
 
   Future<void> _loadNotes() async {
     final notes = await _databaseHelper.getNotes();
     setState(() {
-      _notes =
-      notes..sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
+      _notes = notes..sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
     });
   }
 
   Future<void> _searchNotes(String value) async {
     final notes = await _databaseHelper.searchNotes(value);
-    if (value.isEmpty)
-      _loadNotes();
+    if(value.isEmpty)
+     _loadNotes();
     else
-      setState(() {
-        _notes = notes;
-      });
+    setState(() {
+
+      _notes = notes;
+    });
   }
 
   String _formatDateTime(String dateTime) {
     final DateTime dt = DateTime.parse(dateTime);
     final now = DateTime.now();
     if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
-      return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute
-          .toString().padLeft(0, '0')}';
+      return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(0, '0')}';
     }
-    return '${dt.day}/${dt.month}/${dt.year}:${dt.minute.toString().padLeft(
-        0, '0')}';
-  }
-
-  void shareNote(Note note) {
-    String shareContent = 'Title: ${note.title}\n\n${note.content}';
-    Share.share(shareContent, subject: 'Check out this note: ${note.title}');
+    return '${dt.day}/${dt.month}/${dt.year}:${dt.minute.toString().padLeft(0, '0')}';
   }
 
   @override
@@ -91,10 +87,12 @@ class _HomeState extends State<Home> {
         elevation: 0,
         backgroundColor: Colors.white,
         title: !_isSearching
-            ? Text(
+        ?
+        Text(
           "My Notes",
         )
-            : TextField(
+        : TextField(
+
           focusNode: _focusNode,
           decoration: InputDecoration(
             hintText: "Search By Title or Content...",
@@ -107,11 +105,10 @@ class _HomeState extends State<Home> {
         actions: [
           IconButton(
             iconSize: 32,
-            onPressed: () {
+            onPressed: (){
               _toggleSearch();
               _loadNotes();
-            },
-            icon: Icon(_isSearching ? Icons.cancel : Icons.search),
+          }, icon: Icon(_isSearching ? Icons.cancel : Icons.search),
           )
         ],
       ),
@@ -135,6 +132,7 @@ class _HomeState extends State<Home> {
                       builder: (context) => ViewNote(note: note),
                     ));
                 _loadNotes();
+
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -152,16 +150,33 @@ class _HomeState extends State<Home> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      note.title,
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          note.title,
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        IconButton(
+                            onPressed: () {
+                              shareNote(note);
+                            },
+                            icon: Icon(
+                              Icons.share,
+                              color: Colors.white,
+                              size: 16,
+                            )
+                        ),
+                      ],
                     ),
+
                     SizedBox(height: 8),
                     Text(
                       note.content,
@@ -173,28 +188,52 @@ class _HomeState extends State<Home> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Spacer(),
-                    Text(
-                      _formatDateTime(note.dateTime),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(onPressed: () {shareNote(note);}, icon: Icon(Icons.share)),
-                    IconButton(
-                      icon: Icon(
-                        note.isPinned ? Icons.push_pin : Icons
-                            .push_pin_outlined,
-                        color: Colors.white,
-                      ),
-                      onPressed: () async {
-                        note.isPinned = !note.isPinned;
+                    Container(
 
-                        await _databaseHelper.updateNote(note);
-                        _loadNotes();
-                      },
-                    ),
+                    height: 32,
+
+                    child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children:[
+                          Text(
+                            _formatDateTime(note.dateTime),
+
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+
+                            ),
+                          ),
+
+                          IconButton(
+                            icon: Icon(
+                              note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                            onPressed: () async {
+                              note.isPinned = !note.isPinned;
+                              await _databaseHelper.updateNote(note);
+                              _loadNotes();
+                            },
+                          ),
+                          // IconButton(
+                          //     onPressed: () {
+                          //       shareNote(note);
+                          //     },
+                          //     icon: Icon(
+                          //       Icons.share,
+                          //       color: Colors.white,
+                          //       size: 16,
+                          //     )
+                          // ),
+                        ],
+
+
+                      )
+                    )
                   ],
                 ),
               ),
