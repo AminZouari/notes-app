@@ -16,6 +16,7 @@ class _HomeState extends State<Home> {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   List<Note> _notes = [];
   bool _isSearching = false;
+  bool _isAscending = true;
   final List<Color> _noteColors = [
     Colors.amber,
     Color(0xFF50C878),
@@ -25,10 +26,9 @@ class _HomeState extends State<Home> {
     Colors.purpleAccent,
     Colors.pinkAccent,
   ];
+
   //focus
   final FocusNode _focusNode = FocusNode();
-
-
 
   void _toggleSearch() {
     setState(() {
@@ -40,6 +40,7 @@ class _HomeState extends State<Home> {
       }
     });
   }
+
   void shareNote(Note note) {
     String shareContent = 'Title: ${note.title}\n\n${note.content}';
     Share.share(shareContent, subject: 'Check out this note: ${note.title}');
@@ -52,22 +53,37 @@ class _HomeState extends State<Home> {
     _databaseHelper.logAllNotes();
   }
 
+  void _sortNotes() {
+    setState(() {
+      _notes.sort((a, b) {
+        // Pinned notes come first
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+
+        // Sort by date within pinned or unpinned notes
+        final dateA = DateTime.parse(a.dateTime);
+        final dateB = DateTime.parse(b.dateTime);
+        return _isAscending ? dateA.compareTo(dateB) : dateB.compareTo(dateA);
+      });
+    });
+  }
+
   Future<void> _loadNotes() async {
     final notes = await _databaseHelper.getNotes();
     setState(() {
-      _notes = notes..sort((a, b) => (b.isPinned ? 1 : 0).compareTo(a.isPinned ? 1 : 0));
+      _notes = notes;
+      _sortNotes();
     });
   }
 
   Future<void> _searchNotes(String value) async {
     final notes = await _databaseHelper.searchNotes(value);
-    if(value.isEmpty)
-     _loadNotes();
+    if (value.isEmpty)
+      _loadNotes();
     else
-    setState(() {
-
-      _notes = notes;
-    });
+      setState(() {
+        _notes = notes;
+      });
   }
 
   String _formatDateTime(String dateTime) {
@@ -87,28 +103,37 @@ class _HomeState extends State<Home> {
         elevation: 0,
         backgroundColor: Colors.white,
         title: !_isSearching
-        ?
-        Text(
-          "My Notes",
-        )
-        : TextField(
-
-          focusNode: _focusNode,
-          decoration: InputDecoration(
-            hintText: "Search By Title or Content...",
-            border: InputBorder.none,
-          ),
-          onChanged: (value) {
-            _searchNotes(value);
-          },
-        ),
+            ? Text(
+                "My Notes",
+              )
+            : TextField(
+                focusNode: _focusNode,
+                decoration: InputDecoration(
+                  hintText: "Search By Title or Content...",
+                  border: InputBorder.none,
+                ),
+                onChanged: (value) {
+                  _searchNotes(value);
+                },
+              ),
         actions: [
           IconButton(
             iconSize: 32,
-            onPressed: (){
+            onPressed: () {
               _toggleSearch();
               _loadNotes();
-          }, icon: Icon(_isSearching ? Icons.cancel : Icons.search),
+            },
+            icon: Icon(_isSearching ? Icons.cancel : Icons.search),
+          ),
+          IconButton(
+            icon: Icon(_isAscending ? Icons.arrow_downward : Icons.arrow_upward),
+            onPressed: () {
+              setState(() {
+                _isAscending = !_isAscending;
+                _sortNotes(); // Re-trigger sorting
+              });
+            },
+            tooltip: "Sort by Date",
           )
         ],
       ),
@@ -132,7 +157,6 @@ class _HomeState extends State<Home> {
                       builder: (context) => ViewNote(note: note),
                     ));
                 _loadNotes();
-
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -164,6 +188,7 @@ class _HomeState extends State<Home> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+
                         IconButton(
                             onPressed: () {
                               shareNote(note);
@@ -172,11 +197,9 @@ class _HomeState extends State<Home> {
                               Icons.share,
                               color: Colors.white,
                               size: 16,
-                            )
-                        ),
+                            )),
                       ],
                     ),
-
                     SizedBox(height: 8),
                     Text(
                       note.content,
@@ -189,51 +212,46 @@ class _HomeState extends State<Home> {
                     ),
                     Spacer(),
                     Container(
-
-                    height: 32,
-
-                    child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children:[
-                          Text(
-                            _formatDateTime(note.dateTime),
-
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-
+                        height: 32,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _formatDateTime(note.dateTime),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
 
-                          IconButton(
-                            icon: Icon(
-                              note.isPinned ? Icons.push_pin : Icons.push_pin_outlined,
-                              color: Colors.white,
-                              size: 16,
+                            IconButton(
+                              icon: Icon(
+                                note.isPinned
+                                    ? Icons.push_pin
+                                    : Icons.push_pin_outlined,
+                                color: Colors.white,
+                                size: 16,
+                              ),
+                              onPressed: () async {
+                                note.isPinned = !note.isPinned;
+                                await _databaseHelper.updateNote(note);
+                                _loadNotes();
+                              },
                             ),
-                            onPressed: () async {
-                              note.isPinned = !note.isPinned;
-                              await _databaseHelper.updateNote(note);
-                              _loadNotes();
-                            },
-                          ),
-                          // IconButton(
-                          //     onPressed: () {
-                          //       shareNote(note);
-                          //     },
-                          //     icon: Icon(
-                          //       Icons.share,
-                          //       color: Colors.white,
-                          //       size: 16,
-                          //     )
-                          // ),
-                        ],
-
-
-                      )
-                    )
+                            // IconButton(
+                            //     onPressed: () {
+                            //       shareNote(note);
+                            //     },
+                            //     icon: Icon(
+                            //       Icons.share,
+                            //       color: Colors.white,
+                            //       size: 16,
+                            //     )
+                            // ),
+                          ],
+                        ))
                   ],
                 ),
               ),
