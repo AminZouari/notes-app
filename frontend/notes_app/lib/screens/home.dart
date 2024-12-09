@@ -178,17 +178,18 @@ class _HomeState extends State<Home> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          note.title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        Expanded(
+                          child: Text(
+                            note.title,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-
                         IconButton(
                             onPressed: () {
                               shareNote(note);
@@ -200,15 +201,17 @@ class _HomeState extends State<Home> {
                             )),
                       ],
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      note.content,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
+
+                      Expanded(child:
+                      Text(
+                        note.content,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                        ),
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     Spacer(),
                     Container(
