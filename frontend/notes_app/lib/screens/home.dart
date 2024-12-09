@@ -89,10 +89,12 @@ class _HomeState extends State<Home> {
   String _formatDateTime(String dateTime) {
     final DateTime dt = DateTime.parse(dateTime);
     final now = DateTime.now();
+
     if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
-      return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(0, '0')}';
+      return 'Today, ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     }
-    return '${dt.day}/${dt.month}/${dt.year}:${dt.minute.toString().padLeft(0, '0')}';
+
+    return '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -190,15 +192,21 @@ class _HomeState extends State<Home> {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        IconButton(
-                            onPressed: () {
+                        Container(
+                          width: 16,
+                          child:IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+
+                              onPressed: () {
                               shareNote(note);
-                            },
+                              },
                             icon: Icon(
                               Icons.share,
                               color: Colors.white,
                               size: 16,
                             )),
+                        ),
                       ],
                     ),
 
@@ -228,8 +236,11 @@ class _HomeState extends State<Home> {
                                 fontSize: 12,
                               ),
                             ),
-
-                            IconButton(
+                          Container(
+                            width: 16,
+                            child:IconButton(
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
                               icon: Icon(
                                 note.isPinned
                                     ? Icons.push_pin
@@ -243,6 +254,7 @@ class _HomeState extends State<Home> {
                                 _loadNotes();
                               },
                             ),
+                          ),
                             // IconButton(
                             //     onPressed: () {
                             //       shareNote(note);

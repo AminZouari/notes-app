@@ -47,7 +47,7 @@ class _AddEditState extends State<AddEdit> {
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.white,
-          title: Text(widget.note == null ? 'Add_Note':'Edit Note'),
+          title: Text(widget.note == null ? 'Add Note':'Edit Note'),
         ),
         body: Form(
           key: _formkey,
